@@ -9,10 +9,25 @@ import (
 )
 
 func main() {
-	app:=fiber.New()
+	app := fiber.New()
+	//use logger middleware to monitor.
 	app.Use(logger.New())
-	app.Route("/vendor",controller.VendorRoute,"vendor")
-	log.Fatal(app.Listen(:3000))
+
+	//isolate the vendor and the user
+	// app.Route("/", func(router fiber.Router) {
+	// 	router.Get("/", func(ctx *fiber.Ctx) error {
+	// 		ctx.Status(fiber.StatusNoContent).SendString("Nothing here!")
+
+	// 		return fiber.NewError(fiber.StatusNoContent, "i said that nothing here!")
+	// 	}).Name("error")
+	// }, "nothing")
+	app.Get("/", func(ctx *fiber.Ctx) error {
+		return ctx.JSON(ctx.App().GetRoutes(false))
+	}).Name("how to use the API")
+
+	app.Route("/vendor", controller.VendorRoute, "vendor")
+
+	log.Fatal(app.Listen(":3000"))
 }
 
 /*
